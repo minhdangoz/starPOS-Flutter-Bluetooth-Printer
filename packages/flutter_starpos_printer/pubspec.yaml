@@ -1,0 +1,23 @@
+name: flutter_starpos_printer
+description: Flutter plugin for connecting and communicationg with Bluetooth Printer.
+version: 1.0.1
+homepage: https://github.com/minhdangoz/flutter_starpos_printer
+
+environment:
+  sdk: ">=2.15.1 <4.0.0"
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: vn.starposvietnam.bluetooth_printer
+        pluginClass: FlutterStarPOSPrinterPlugin
+      ios:
+        pluginClass: FlutterStarPOSPrinterPlugin
+      macos:
+        pluginClass: FlutterStarPOSPrinterPlugin
