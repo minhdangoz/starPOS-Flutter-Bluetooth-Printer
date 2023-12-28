@@ -1,10 +1,6 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_starpos_printer/flutter_blue_plus.dart';
-import 'package:starpos_printer_helper/printer_controller.dart';
 
 class PrintBitmapPage extends StatefulWidget {
   const PrintBitmapPage({super.key});

@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_starpos_printer/flutter_blue_plus.dart';
 import 'package:starpos_printer_helper/page/bottom_sheet.dart';
-import 'package:starpos_printer_helper/printer_controller.dart';
 import 'package:webcontent_converter/webcontent_converter.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 

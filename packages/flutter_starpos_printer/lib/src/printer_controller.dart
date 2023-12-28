@@ -1,6 +1,4 @@
-import 'dart:io';
-
-import 'package:flutter_starpos_printer/flutter_blue_plus.dart';
+part of flutter_blue_plus;
 
 class PrinterController {
   Future<void> initBluetoothPrinter({

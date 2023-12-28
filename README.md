@@ -1,16 +1,32 @@
-# starpos_printer_helper
+# starPOS Bluetooth Printer
 
-A new Flutter project.
+<img style="width: 50%" src="/screenshots/main.png">
+<img style="width: 50%" src="/screenshots/html.png">
+<img style="width: 50%" src="/screenshots/html_print.jpg">
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project is a starting point for a ESC/POS Printer
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## How to install
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* Clone this project
+
+* Copy packages/flutter_starpos_printer in to your root project
+
+* Add to project dependencies like this
+
+```yaml
+flutter_starpos_printer:
+    path: 'packages/flutter_starpos_printer'
+```
+
+* Run flutter pub get to install
+```cli
+flutter pub get
+```
+
+## How to connect to starPOS bluetooth printer
+
+* 

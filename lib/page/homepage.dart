@@ -3,7 +3,6 @@ import 'package:flutter_starpos_printer/flutter_blue_plus.dart';
 import 'package:starpos_printer_helper/page/print_bitmap.dart';
 import 'package:starpos_printer_helper/page/print_html.dart';
 import 'package:starpos_printer_helper/page/print_text.dart';
-import 'package:starpos_printer_helper/printer_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
