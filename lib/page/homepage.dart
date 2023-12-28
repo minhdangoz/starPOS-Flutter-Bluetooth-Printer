@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_starpos_printer/flutter_blue_plus.dart';
 import 'package:starpos_printer_helper/page/print_bitmap.dart';
+import 'package:starpos_printer_helper/page/print_html.dart';
 import 'package:starpos_printer_helper/page/print_text.dart';
 import 'package:starpos_printer_helper/printer_controller.dart';
 
@@ -81,6 +82,17 @@ class _HomePageState extends State<HomePage> {
               decoration: BoxDecoration(),
               child: Column(
                 children: [
+                  // nextline
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        printer?.printNextLine(1);
+                      },
+                      child: Text('Print line'),
+                    ),
+                  ),
+
                   // text
                   SizedBox(
                     width: double.infinity,
@@ -119,7 +131,7 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => PrintBitmapPage()),
+                              builder: (context) => PrintHtmlPage()),
                         );
                       },
                       child: Text('Print HTML'),

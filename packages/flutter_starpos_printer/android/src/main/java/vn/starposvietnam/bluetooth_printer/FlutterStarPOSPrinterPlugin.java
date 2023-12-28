@@ -1,6 +1,7 @@
 package vn.starposvietnam.bluetooth_printer;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
@@ -26,6 +27,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -114,6 +117,8 @@ public class FlutterStarPOSPrinterPlugin implements
 
     private static final UUID PRINTER_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
+    public static final int PRINT_WIDTH_65 = 380;
+
     private interface OperationOnPermission {
         void op(boolean granted, String permission);
     }
@@ -186,11 +191,11 @@ public class FlutterStarPOSPrinterPlugin implements
 
         // stop scanning
         // if (mBluetoothAdapter != null && mIsScanning) {
-        //     BluetoothLeScanner scanner = mBluetoothAdapter.getBluetoothLeScanner();
-        //     if (scanner != null) {
-        //         scanner.stopScan(getScanCallback());
-        //         mIsScanning = false;
-        //     }
+        // BluetoothLeScanner scanner = mBluetoothAdapter.getBluetoothLeScanner();
+        // if (scanner != null) {
+        // scanner.stopScan(getScanCallback());
+        // mIsScanning = false;
+        // }
         // }
 
         if (mBluetoothSocket != null) {
@@ -258,6 +263,7 @@ public class FlutterStarPOSPrinterPlugin implements
     // ██ ██ ██ ██ ██
     // ██████ ██ ██ ███████ ███████
 
+    @SuppressLint("MissingPermission")
     @Override
     @SuppressWarnings({ "deprecation", "unchecked" })
     // needed for compatability, type safety uses bluetooth_msgs.dart
@@ -298,8 +304,8 @@ public class FlutterStarPOSPrinterPlugin implements
                     // stop scanning
                     // BluetoothLeScanner scanner = mBluetoothAdapter.getBluetoothLeScanner();
                     // if (scanner != null && mIsScanning) {
-                    //     scanner.stopScan(getScanCallback());
-                    //     mIsScanning = false;
+                    // scanner.stopScan(getScanCallback());
+                    // mIsScanning = false;
                     // }
 
                     disconnectAllDevices("flutterHotRestart");
@@ -409,14 +415,14 @@ public class FlutterStarPOSPrinterPlugin implements
 
                     ensurePermissions(permissions, (granted, perm) -> {
 
-                        if (granted == false) {
+                        if (!granted) {
                             result.error("turnOff",
                                     String.format("FlutterBluePlus requires %s permission", perm), null);
                             return;
                         }
 
-                        if (mBluetoothAdapter.isEnabled() == false) {
-                            result.success(true); // no work to do
+                        if (!mBluetoothAdapter.isEnabled()) {
+                            result.success(false); // no work to do
                             return;
                         }
 
@@ -492,7 +498,6 @@ public class FlutterStarPOSPrinterPlugin implements
                             mConnectedDevices.put(remoteId, device);
                         }
 
-
                         // see: BmConnectionStateResponse
                         HashMap<String, Object> response = new HashMap<>();
                         response.put("remote_id", remoteId);
@@ -555,17 +560,394 @@ public class FlutterStarPOSPrinterPlugin implements
                     break;
                 }
 
+                // ██████╗░██████╗░██╗███╗░░██╗████████╗███████╗██████╗░
+                // ██╔══██╗██╔══██╗██║████╗░██║╚══██╔══╝██╔════╝██╔══██╗
+                // ██████╔╝██████╔╝██║██╔██╗██║░░░██║░░░█████╗░░██████╔╝
+                // ██╔═══╝░██╔══██╗██║██║╚████║░░░██║░░░██╔══╝░░██╔══██╗
+                // ██║░░░░░██║░░██║██║██║░╚███║░░░██║░░░███████╗██║░░██║
+                // ╚═╝░░░░░╚═╝░░╚═╝╚═╝╚═╝░░╚══╝░░░╚═╝░░░╚══════╝╚═╝░░╚═╝
+                //
+                // ░█████╗░░█████╗░███╗░░░███╗███╗░░░███╗░█████╗░███╗░░██╗██████╗░░██████╗
+                // ██╔══██╗██╔══██╗████╗░████║████╗░████║██╔══██╗████╗░██║██╔══██╗██╔════╝
+                // ██║░░╚═╝██║░░██║██╔████╔██║██╔████╔██║███████║██╔██╗██║██║░░██║╚█████╗░
+                // ██║░░██╗██║░░██║██║╚██╔╝██║██║╚██╔╝██║██╔══██║██║╚████║██║░░██║░╚═══██╗
+                // ╚█████╔╝╚█████╔╝██║░╚═╝░██║██║░╚═╝░██║██║░░██║██║░╚███║██████╔╝██████╔╝
+                // ░╚════╝░░╚════╝░╚═╝░░░░░╚═╝╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░╚═════╝░
+
+                /**
+                 * call init printer for checking transaction
+                 */
+                case "initPrinter": {
+
+                    log(LogLevel.INFO, "--> got initPrinter command");
+
+                    final boolean success = sendDataToPrinter(ESCUtil.init_printer());
+
+                    result.success(success);
+                    break;
+                }
+
+                case "setPrinterDarkness": {
+
+                    log(LogLevel.INFO, "--> got setPrinterDarkness command");
+
+                    int value = (int) call.arguments;
+                    final boolean success = sendDataToPrinter(ESCUtil.setPrinterDarkness(value));
+
+                    result.success(success);
+                    break;
+                }
+
+                /*
+                 * String code,
+                 * int modulesize,
+                 * int errorlevel
+                 */
+                case "getPrintQRCode": {
+
+                    log(LogLevel.INFO, "--> got getPrintQRCode command");
+
+                    HashMap<String, Object> args = call.arguments();
+                    if (args != null) {
+                        String code = (String) args.get("code");
+
+                        int modulesize = 8;
+                        int errorlevel = 30;
+
+                        if (args.get("modulesize") != null) {
+                            modulesize = (int) args.get("modulesize");
+                        }
+
+                        if (args.get("errorlevel") != null) {
+                            errorlevel = (int) args.get("errorlevel");
+                        }
+
+                        final boolean success = sendDataToPrinter(ESCUtil.getPrintQRCode(code, modulesize, errorlevel));
+
+                        result.success(success);
+                    }
+
+                    result.success(false);
+                    break;
+                }
+
+                /**
+                 * Two horizontal two-dimensional codes custom instructions
+                 * * @param code1: QR code data
+                 * * @param code2: QR code data
+                 * * @param modulesize: QR code block size (unit: point, value 1 to 16)
+                 * * @param errorlevel: QR code error correction level (0 to 3)
+                 * * 0 - Error correction level L (7%)
+                 * * 1 - Error correction level M (15%)
+                 * * 2 - Error correction level Q (25%)
+                 * * 3 - Error correction level H (30%)
+                 */
+                case "getPrintDoubleQRCode": {
+
+                    log(LogLevel.INFO, "--> got getPrintDoubleQRCode command");
+
+                    HashMap<String, Object> args = call.arguments();
+                    if (args != null) {
+                        String code1 = (String) args.get("code1");
+                        String code2 = (String) args.get("code2");
+
+                        int modulesize = 8;
+                        int errorlevel = 30;
+
+                        if (args.get("modulesize") != null) {
+                            modulesize = (int) args.get("modulesize");
+                        }
+
+                        if (args.get("errorlevel") != null) {
+                            errorlevel = (int) args.get("errorlevel");
+                        }
+
+                        final boolean success = sendDataToPrinter(
+                                ESCUtil.getPrintDoubleQRCode(code1, code2, modulesize, errorlevel));
+
+                        result.success(success);
+                    }
+
+                    result.success(false);
+                    break;
+                }
+
+                case "getPrintZXingQRCode": {
+
+                    log(LogLevel.INFO, "--> got getPrintZXingQRCode command");
+
+                    HashMap<String, Object> args = call.arguments();
+                    if (args != null) {
+                        String code = (String) args.get("code");
+
+                        int size = 8;
+
+                        if (args.get("size") != null) {
+                            size = (int) args.get("size");
+                        }
+
+                        final boolean success = sendDataToPrinter(
+                                ESCUtil.getPrintZXingQRCode(code, size));
+
+                        result.success(success);
+                    }
+
+                    result.success(false);
+                    break;
+                }
+
+                /**
+                 * String data,
+                 * encode "UPC-A", "UPC-E", "EAN13", "EAN8", "CODE39", "ITF", "CODABAR",
+                 * "CODE93", "CODE128A", "CODE128B", "CODE128C"
+                 * int symbology
+                 * int height
+                 * int width
+                 * HRI position: int textposition: 0 null, 1 above barcode, 2 underneath, 3
+                 * above & underneath
+                 */
+                case "getPrintBarCode": {
+
+                    log(LogLevel.INFO, "--> got getPrintBarCode command");
+
+                    HashMap<String, Object> args = call.arguments();
+                    if (args != null) {
+
+                        int size = 8;
+                        int symbology = 0;
+                        int encode = 2;
+                        int height = 80;
+                        int width = 2;
+                        int position = 0;
+
+                        String code = (String) args.get("code");
+                        encode = (int) args.get("encode");
+                        height = (int) args.get("height");
+                        width = (int) args.get("width");
+                        position = (int) args.get("textposition");
+
+                        // int symbology;
+                        // if(encode > 7){
+                        // symbology = 8;
+                        // }else{
+                        // symbology = encode;
+                        // }
+                        // Bitmap bitmap = BitmapUtil.generateQRBitmap(code, symbology, 700, 400);
+
+                        final boolean success = sendDataToPrinter(
+                                ESCUtil.getPrintBarCode(code, encode, height, width, position));
+
+                        result.success(success);
+                    }
+
+                    result.success(false);
+                    break;
+                }
+
                 case "sendData": {
 
                     byte[] data = (byte[]) call.arguments;
-                    log(LogLevel.INFO, "--> got send data command: args = " + data);
+                    log(LogLevel.INFO, "--> got send data command | length = " + data.length);
 
-                    sendData(data);
+                    final boolean success = sendDataToPrinter(data);
 
-                    result.success(true);
-
+                    result.success(success);
                     break;
+                }
 
+                case "printText": {
+
+                    HashMap<String, Object> args = call.arguments();
+
+                    String data = (String) args.get("text");
+                    // utf-8 - gb-1258...
+                    String charset = (String) args.get("charset");
+
+                    log(LogLevel.INFO, "--> got print text command | text = " + data);
+
+                    final boolean success = sendDataToPrinter(data.getBytes(StandardCharsets.UTF_8));
+
+                    result.success(success);
+                    break;
+                }
+
+                /**
+                 * DO NOT USE THIS
+                 */
+                case "printBitmap": {
+
+                    byte[] data = (byte[]) call.arguments;
+                    log(LogLevel.INFO, "--> got printBitmap command | length = " + data.length);
+
+                    final Bitmap temp = BitmapFactory.decodeByteArray(data, 0, data.length);
+
+                    // final Bitmap bitmap = BitmapUtil.resizeImage(temp, PRINT_WIDTH_65, false);
+
+                    final boolean success = sendDataToPrinter(ESCUtil.printBitmap(temp));
+
+                    result.success(success);
+                    break;
+                }
+
+                case "printBitmapMode": {
+
+                    int width = (int) call.arguments;
+                    log(LogLevel.INFO, "--> got set printBitmapMode command | width = " + width);
+
+                    final boolean success = sendDataToPrinter(ESCUtil.printBitmapMode(width));
+
+                    result.success(success);
+                    break;
+                }
+
+                case "printByteBitmap": {
+
+                    byte[] data = (byte[]) call.arguments;
+                    log(LogLevel.INFO, "--> got printByteBitmap command | length = " + data.length);
+
+                    final boolean success = sendDataToPrinter(ESCUtil.printBitmap(data));
+
+                    result.success(success);
+                    break;
+                }
+
+                case "printRasterBitmap": {
+
+                    HashMap<String, Object> args = call.arguments();
+
+                    byte[] data = (byte[]) args.get("data");
+                    int mode = (int) args.get("mode");
+
+                    log(LogLevel.INFO, "--> got printRasterBitmap command | length = " + data.length);
+
+                    final Bitmap temp = BitmapFactory.decodeByteArray(data, 0, data.length);
+
+                    final Bitmap bitmap = BitmapUtil.resizeImage(temp, PRINT_WIDTH_65, false);
+
+                    final boolean success = sendDataToPrinter(ESCUtil.printRasterBitmap(bitmap, mode));
+
+                    result.success(success);
+                    break;
+                }
+
+                case "printNextLine": {
+                    int data = (int) call.arguments;
+                    log(LogLevel.INFO, "--> got next line command = " + data);
+
+                    final boolean success = sendDataToPrinter(ESCUtil.nextLine(data));
+
+                    result.success(success);
+                    break;
+                }
+
+                case "setDefaultLineSpace": {
+                    log(LogLevel.INFO, "--> got setDefaultLineSpace command");
+
+                    final boolean success = sendDataToPrinter(ESCUtil.setDefaultLineSpace());
+
+                    result.success(success);
+                    break;
+                }
+
+                case "setLineSpace": {
+                    log(LogLevel.INFO, "--> got setLineSpace command");
+                    int height = (int) call.arguments;
+                    final boolean success = sendDataToPrinter(ESCUtil.setLineSpace(height));
+                    result.success(success);
+                    break;
+                }
+
+                case "underlineWithOneDotWidthOn": {
+                    log(LogLevel.INFO, "--> got underlineWithOneDotWidthOn command");
+                    final boolean success = sendDataToPrinter(ESCUtil.underlineWithOneDotWidthOn());
+                    result.success(success);
+                    break;
+                }
+
+                case "underlineWithTwoDotWidthOn": {
+                    log(LogLevel.INFO, "--> got underlineWithTwoDotWidthOn command");
+                    final boolean success = sendDataToPrinter(ESCUtil.underlineWithTwoDotWidthOn());
+                    result.success(success);
+                    break;
+                }
+
+                case "underlineOff": {
+                    log(LogLevel.INFO, "--> got underlineOff command");
+                    final boolean success = sendDataToPrinter(ESCUtil.underlineOff());
+                    result.success(success);
+                    break;
+                }
+
+                case "boldOn": {
+                    log(LogLevel.INFO, "--> got boldOn command");
+                    final boolean success = sendDataToPrinter(ESCUtil.boldOn());
+                    result.success(success);
+                    break;
+                }
+
+                case "b68boldOn": {
+                    log(LogLevel.INFO, "--> got b68boldOn command");
+                    final boolean success = sendDataToPrinter(ESCUtil.boldOn());
+                    result.success(success);
+                    break;
+                }
+
+                case "boldOff": {
+                    log(LogLevel.INFO, "--> got boldOff command");
+                    final boolean success = sendDataToPrinter(ESCUtil.boldOn());
+                    result.success(success);
+                    break;
+                }
+
+                case "alignLeft": {
+                    log(LogLevel.INFO, "--> got align left command");
+                    final boolean success = sendDataToPrinter(ESCUtil.alignLeft());
+                    result.success(success);
+                    break;
+                }
+
+                case "alignRight": {
+                    log(LogLevel.INFO, "--> got align right command");
+                    final boolean success = sendDataToPrinter(ESCUtil.alignRight());
+                    result.success(success);
+                    break;
+                }
+
+                case "alignCenter": {
+                    log(LogLevel.INFO, "--> got align center command");
+                    final boolean success = sendDataToPrinter(ESCUtil.alignCenter());
+                    result.success(success);
+                    break;
+                }
+
+                case "singleByte": {
+                    log(LogLevel.INFO, "--> got single byte command");
+                    final boolean success = sendDataToPrinter(ESCUtil.singleByte());
+                    result.success(success);
+                    break;
+                }
+
+                case "singleByteOff": {
+                    log(LogLevel.INFO, "--> got single byte off command");
+                    final boolean success = sendDataToPrinter(ESCUtil.singleByteOff());
+                    result.success(success);
+                    break;
+                }
+
+                case "setCodeSystem": {
+                    log(LogLevel.INFO, "--> got setCodeSystem command");
+                    byte charset = (byte) call.arguments;
+                    final boolean success = sendDataToPrinter(ESCUtil.setCodeSystem(charset));
+                    result.success(success);
+                    break;
+                }
+
+                case "setCodeSystemSingle": {
+                    log(LogLevel.INFO, "--> got setCodeSystemSingle command");
+                    byte charset = (byte) call.arguments;
+                    final boolean success = sendDataToPrinter(ESCUtil.setCodeSystemSingle(charset));
+                    result.success(success);
+                    break;
                 }
 
                 default: {
@@ -583,28 +965,36 @@ public class FlutterStarPOSPrinterPlugin implements
         }
     }
 
-    /**sendData
+    /**
+     * sendData
      *
      *
      * send esc cmd
      */
-    private void sendData(byte[] bytes) {
+    private boolean sendDataToPrinter(byte[] bytes) {
 
-        log(LogLevel.INFO, "--> sendData: " + Arrays.toString(bytes));
+        log(LogLevel.INFO, "--> sendData " + Arrays.toString(bytes));
+
+        // log(LogLevel.INFO, "--> sendData convert to String = " + new String(bytes,
+        // StandardCharsets.UTF_8));
 
         if (mBluetoothSocket != null) {
             try {
                 OutputStream out = mBluetoothSocket.getOutputStream();
                 out.write(bytes, 0, bytes.length);
+                return true;
             } catch (IOException e) {
                 e.printStackTrace();
+                return false;
             }
         } else {
             log(LogLevel.ERROR, "--> BLE socket NULL <--");
+            return false;
         }
     }
 
     // See: BmBluetoothDevice
+    @SuppressLint("MissingPermission")
     HashMap<String, Object> bmBluetoothDevice(BluetoothDevice device) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("remote_id", device.getAddress());
@@ -914,7 +1304,6 @@ public class FlutterStarPOSPrinterPlugin implements
         }
     }
 
-
     //////////////////////////////////////////
     // ██ ██ ████████ ██ ██ ███████
     // ██ ██ ██ ██ ██ ██
@@ -923,9 +1312,9 @@ public class FlutterStarPOSPrinterPlugin implements
     // ██████ ██ ██ ███████ ███████
 
     private void log(LogLevel level, String message) {
-        if (level.ordinal() > logLevel.ordinal()) {
-            return;
-        }
+        // if (level.ordinal() > logLevel.ordinal()) {
+        // return;
+        // }
         switch (level) {
             case DEBUG:
                 Log.d(TAG, "[FBP] " + message);

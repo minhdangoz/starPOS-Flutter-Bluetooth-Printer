@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_starpos_printer/flutter_blue_plus.dart';
+import 'package:starpos_printer_helper/page/utils.dart';
 import 'package:starpos_printer_helper/printer_controller.dart';
 
 class PrintTextPage extends StatefulWidget {
@@ -26,7 +27,7 @@ class _PrintTextPageState extends State<PrintTextPage> {
     initStarPOSPrinter();
 
     textController.text =
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.";
+        "Sáng nay (28/12), Thủ tướng Chính phủ Phạm Minh Chính đã dự và chỉ đạo Hội nghị tổng kết công tác năm 2023 và triển khai kế hoạch năm 2024 của ngành giao thông vận tải.";
   }
 
   Future<void> initStarPOSPrinter() async {
@@ -92,8 +93,6 @@ class _PrintTextPageState extends State<PrintTextPage> {
             ),
           ),
 
-          Spacer(),
-
           Container(
             margin: EdgeInsets.all(8),
             child: SizedBox(
@@ -101,13 +100,12 @@ class _PrintTextPageState extends State<PrintTextPage> {
               child: ElevatedButton(
                 onPressed: () {
                   // start printing
+                  final input = textController.text;
 
-                  final List<int> utf8Bytes = utf8.encode(textController.text);
+                  print('--> print text content: $input');
 
-                  // Uint8List bytes = Uint8List.fromList(test.codeUnits);
-
-                  printer?.sendData(Uint8List.fromList(utf8Bytes));
-                  printer?.sendData(ESCUtil.nextLine(3));
+                  printer?.printText(input, 'utf-8');
+                  printer?.printNextLine(1);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,

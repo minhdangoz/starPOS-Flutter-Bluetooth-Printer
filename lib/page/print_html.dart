@@ -1,34 +1,82 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_starpos_printer/flutter_blue_plus.dart';
+import 'package:starpos_printer_helper/page/bottom_sheet.dart';
 import 'package:starpos_printer_helper/printer_controller.dart';
+import 'package:webcontent_converter/webcontent_converter.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
-class PrintBitmapPage extends StatefulWidget {
-  const PrintBitmapPage({super.key});
+class PrintHtmlPage extends StatefulWidget {
+  const PrintHtmlPage({super.key});
 
   @override
-  State<PrintBitmapPage> createState() => _PrintBitmapPageState();
+  State<PrintHtmlPage> createState() => _PrintHtmlPageState();
 }
 
-class _PrintBitmapPageState extends State<PrintBitmapPage> {
-  PrinterController controller = PrinterController();
+class _PrintHtmlPageState extends State<PrintHtmlPage> {
+  PrinterController printerController = PrinterController();
+
+  WebViewController? _controller;
 
   BluetoothDevice? printer;
 
-  final String imagePath = 'assets/images/bill2.png';
+  final String path = 'assets/html/base_print_bill.html';
+
+  bool isLoading = true;
+
+  final urlController = TextEditingController();
+
+  String htmlContent = '';
+
+  var bytes = Uint8List(0);
+
+  Future<void> initHTML() async {
+    htmlContent = await rootBundle.loadString(path);
+
+    bytes = await WebcontentConverter.contentToImage(
+      content: htmlContent,
+      duration: 5000,
+      scale: 3,
+    );
+
+    setState(() {
+      _controller?.loadHtmlString(htmlContent);
+    });
+  }
+
+  void initPage() {
+    final WebViewController controller =
+        WebViewController.fromPlatformCreationParams(
+            PlatformWebViewControllerCreationParams());
+
+    controller
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..addJavaScriptChannel(
+        'Toaster',
+        onMessageReceived: (JavaScriptMessage message) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message.message)),
+          );
+        },
+      );
+    _controller = controller;
+  }
 
   @override
   void initState() {
+    initHTML();
+
+    initPage();
+
     super.initState();
 
     initStarPOSPrinter();
   }
 
   Future<void> initStarPOSPrinter() async {
-    await controller.initBluetoothPrinter(
+    await printerController.initBluetoothPrinter(
       onSuccess: (device) {
         printer = device;
         setState(() {});
@@ -40,22 +88,25 @@ class _PrintBitmapPageState extends State<PrintBitmapPage> {
   }
 
   Future<void> startPrinting() async {
-    final ByteData byte = await rootBundle.load(imagePath);
-    final Uint8List bytes = byte.buffer.asUint8List();
+    if (bytes.isNotEmpty) {
+      print('--> bytes size ${bytes.length}');
+      // printer?.printRasterBitmap(bytes);
+      // printer?.printNextLine(2);
 
-    // printBitmapMode doesn't support B68
-    // printer?.printBitmapMode(0);
-    // printer?.printRasterBitmap(bytes, 1);
-    printer?.initPrinter();
-    printer?.printRasterBitmap(bytes, 0);
-    printer?.printNextLine(1);
+      showModalBottomSheet(
+          context: context,
+          builder: (context) => BottomSheetBill(
+                data: bytes,
+                printer: printer!,
+              ));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Print bitmap'),
+        title: Text('Print HTML'),
       ),
       body: Column(
         children: [
@@ -81,16 +132,7 @@ class _PrintBitmapPageState extends State<PrintBitmapPage> {
           // textbox
 
           Expanded(
-            child: Container(
-              color: Colors.black12,
-              width: double.infinity,
-              height: double.infinity,
-              margin: EdgeInsets.all(16),
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.fitHeight,
-              ),
-            ),
+            child: WebViewWidget(controller: _controller!),
           ),
 
           Container(

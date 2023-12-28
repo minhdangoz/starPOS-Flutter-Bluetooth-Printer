@@ -27,7 +27,7 @@
 
 
     <application
-        android:label="starpos_printer_helper"
+        android:label="starPOS Bluetooth Printer"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

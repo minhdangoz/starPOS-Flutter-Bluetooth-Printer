@@ -134,10 +134,293 @@ class BluetoothDevice {
     }
   }
 
-  Future<void> sendData(Uint8List? data) async {
+  Future<bool> initPrinter() async {
+    final bool result = await FlutterBluePlus._invokeMethod('initPrinter');
+
+    print('--> initPrinter result = $result');
+
+    return result;
+  }
+
+  Future<bool> setPrinterDarkness(int value) async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('setPrinterDarkness', value);
+
+    print('--> setPrinterDarkness result = $result');
+
+    return result;
+  }
+
+  Future<bool> getPrintQRCode(
+    String code,
+    int modulesize,
+    int errorlevel,
+  ) async {
+    final data = {
+      'code': code,
+      'modulesize': modulesize,
+      'errorlevel': errorlevel,
+    };
+    final bool result =
+        await FlutterBluePlus._invokeMethod('getPrintQRCode', data);
+
+    print('--> getPrintQRCode result = $result');
+
+    return result;
+  }
+
+  Future<bool> getPrintDoubleQRCode(
+    String code1,
+    String code2,
+    int modulesize,
+    int errorlevel,
+  ) async {
+    final data = {
+      'code1': code1,
+      'code2': code2,
+      'modulesize': modulesize,
+      'errorlevel': errorlevel,
+    };
+    final bool result =
+        await FlutterBluePlus._invokeMethod('getPrintDoubleQRCode', data);
+
+    print('--> getPrintDoubleQRCode result = $result');
+
+    return result;
+  }
+
+  Future<bool> getPrintZXingQRCode(
+    String code,
+    int size,
+  ) async {
+    final data = {
+      'code': code,
+      'size': size,
+    };
+    final bool result =
+        await FlutterBluePlus._invokeMethod('getPrintZXingQRCode', data);
+
+    print('--> getPrintZXingQRCode result = $result');
+
+    return result;
+  }
+
+  /// String data,
+  /// encode "UPC-A", "UPC-E", "EAN13", "EAN8", "CODE39", "ITF", "CODABAR",
+  /// "CODE93", "CODE128A", "CODE128B", "CODE128C"
+  /// int symbology
+  /// int height
+  /// int width
+  /// HRI position: int textposition: 0 null, 1 above barcode, 2 underneath, 3
+  /// above & underneath
+  ///
+  Future<bool> getPrintBarCode(
+    String code,
+    int encode,
+    int height,
+    int width,
+    int position,
+  ) async {
+    final data = {
+      'code': code,
+      'encode': encode,
+      'height': height,
+      'width': width,
+      'position': position,
+    };
+    final bool result =
+        await FlutterBluePlus._invokeMethod('getPrintBarCode', data);
+
+    print('--> getPrintBarCode result = $result');
+
+    return result;
+  }
+
+  Future<bool> sendData(Uint8List? data) async {
     final bool result = await FlutterBluePlus._invokeMethod('sendData', data);
 
     print('--> send data result = $result');
+
+    return result;
+  }
+
+  Future<bool> printText(String text, String charset) async {
+    final data = {
+      'text': text,
+      'charset': charset,
+    };
+    final bool result = await FlutterBluePlus._invokeMethod('printText', data);
+
+    print('--> send print text result = $result');
+
+    return result;
+  }
+
+  ///
+  /// WARNING: this function might not work perfectly, try printRasterBitmap instead
+  ///
+  Future<bool> printBitmap(Uint8List? data) async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('printBitmap', data);
+
+    print('--> print bitmap result = $result');
+    return result;
+  }
+
+  Future<bool> printRasterBitmap(Uint8List? image, int? mode) async {
+    final data = {
+      'data': image,
+      'mode': mode,
+    };
+
+    final bool result =
+        await FlutterBluePlus._invokeMethod('printRasterBitmap', data);
+
+    print('--> print printRasterBitmap result = $result');
+    return result;
+  }
+
+  /*
+	* Select bit-image mode
+	* m	Mode
+		0	8 Dot single density
+		1	8 Dot double density
+		32	24 Dot single density
+		33	24 Dot double density
+	* */
+  Future<bool> printBitmapMode(int width) async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('printBitmapMode', width);
+
+    print('--> print printRasterBitmap result = $result');
+    return result;
+  }
+
+  Future<bool> printByteBitmap(Uint8List? data) async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('printByteBitmap', data);
+
+    print('--> print printByteBitmap result = $result');
+    return result;
+  }
+
+  Future<bool> printNextLine(int line) async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('printNextLine', line);
+
+    print('--> nextline result = $result');
+    return result;
+  }
+
+  Future<bool> setDefaultLineSpace() async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('setDefaultLineSpace');
+
+    print('--> setDefaultLineSpace result = $result');
+    return result;
+  }
+
+  Future<bool> setLineSpace(int height) async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('setLineSpace', height);
+
+    print('--> setLineSpace result = $result');
+    return result;
+  }
+
+  Future<bool> underlineWithOneDotWidthOn() async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('underlineWithOneDotWidthOn');
+
+    print('--> underlineWithOneDotWidthOn result = $result');
+    return result;
+  }
+
+  Future<bool> underlineWithTwoDotWidthOn() async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('underlineWithTwoDotWidthOn');
+
+    print('--> underlineWithTwoDotWidthOn result = $result');
+    return result;
+  }
+
+  Future<bool> underlineOff() async {
+    final bool result = await FlutterBluePlus._invokeMethod('underlineOff');
+
+    print('--> underlineOff result = $result');
+    return result;
+  }
+
+  Future<bool> boldOn() async {
+    final bool result = await FlutterBluePlus._invokeMethod('boldOn');
+
+    print('--> boldOn result = $result');
+    return result;
+  }
+
+  Future<bool> b68boldOn() async {
+    final bool result = await FlutterBluePlus._invokeMethod('b68boldOn');
+
+    print('--> b68boldOn result = $result');
+    return result;
+  }
+
+  Future<bool> boldOff() async {
+    final bool result = await FlutterBluePlus._invokeMethod('boldOff');
+
+    print('--> boldOff result = $result');
+    return result;
+  }
+
+  Future<bool> alignLeft() async {
+    final bool result = await FlutterBluePlus._invokeMethod('alignLeft');
+
+    print('--> alignLeft result = $result');
+    return result;
+  }
+
+  Future<bool> alignRight() async {
+    final bool result = await FlutterBluePlus._invokeMethod('alignRight');
+
+    print('--> alignRight result = $result');
+    return result;
+  }
+
+  Future<bool> alignCenter() async {
+    final bool result = await FlutterBluePlus._invokeMethod('alignCenter');
+
+    print('--> alignCenter result = $result');
+    return result;
+  }
+
+  Future<bool> singleByte() async {
+    final bool result = await FlutterBluePlus._invokeMethod('singleByte');
+
+    print('--> singleByte result = $result');
+    return result;
+  }
+
+  Future<bool> singleByteOff() async {
+    final bool result = await FlutterBluePlus._invokeMethod('singleByteOff');
+
+    print('--> singleByteOff result = $result');
+    return result;
+  }
+
+  Future<bool> setCodeSystem(Uint8List charset) async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('setCodeSystem', charset);
+
+    print('--> setCodeSystem result = $result');
+    return result;
+  }
+
+  Future<bool> setCodeSystemSingle(Uint8List charset) async {
+    final bool result =
+        await FlutterBluePlus._invokeMethod('setCodeSystemSingle', charset);
+
+    print('--> setCodeSystemSingle result = $result');
+    return result;
   }
 
   /// Cancels connection to the Bluetooth Device
