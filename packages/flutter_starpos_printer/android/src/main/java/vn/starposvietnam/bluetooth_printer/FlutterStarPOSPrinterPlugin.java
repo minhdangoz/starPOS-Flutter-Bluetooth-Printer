@@ -979,14 +979,19 @@ public class FlutterStarPOSPrinterPlugin implements
         // StandardCharsets.UTF_8));
 
         if (mBluetoothSocket != null) {
-            try {
-                OutputStream out = mBluetoothSocket.getOutputStream();
-                out.write(bytes, 0, bytes.length);
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
+            Thread thread = new Thread(() -> {
+                try {
+                    OutputStream out = mBluetoothSocket.getOutputStream();
+                    out.write(bytes, 0, bytes.length);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            thread.start();
+
+            return true;
+        
         } else {
             log(LogLevel.ERROR, "--> BLE socket NULL <--");
             return false;

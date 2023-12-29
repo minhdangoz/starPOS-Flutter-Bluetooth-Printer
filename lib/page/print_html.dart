@@ -30,12 +30,12 @@ class _PrintHtmlPageState extends State<PrintHtmlPage> {
   var bytes = Uint8List(0);
 
   Future<void> initHTML() async {
-    htmlContent = await rootBundle.loadString(path);
+    htmlContent = await rootBundle.loadString(path, cache: false);
 
     bytes = await WebcontentConverter.contentToImage(
       content: htmlContent,
       duration: 5000,
-      scale: 3,
+      scale: 1,
     );
 
     setState(() {
@@ -90,6 +90,12 @@ class _PrintHtmlPageState extends State<PrintHtmlPage> {
       print('--> bytes size ${bytes.length}');
       // printer?.printRasterBitmap(bytes);
       // printer?.printNextLine(2);
+
+      bytes = await WebcontentConverter.contentToImage(
+        content: htmlContent,
+        duration: 5000,
+        scale: 1,
+      );
 
       showModalBottomSheet(
           context: context,
