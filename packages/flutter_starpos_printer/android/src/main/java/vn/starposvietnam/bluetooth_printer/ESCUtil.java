@@ -16,9 +16,12 @@ public class ESCUtil {
 	public static final byte SP = 0x20;// Spaces
 	public static final byte HT = 0x09;// Horizontal list
 	public static final byte LF = 0x0A;// Print and wrap (horizontal orientation)
+	public static final byte LF2 = 13;// Print and wrap (horizontal orientation)
 	public static final byte CR = 0x0D;// Home key
 	public static final byte FF = 0x0C;// Carriage control (print and return to the standard mode (in page mode))
 	public static final byte CAN = 0x18;// Canceled (cancel print data in page mode)
+	public static final byte PCUT = 105;// Cut partial
+	public static final byte FCUT = 109;// Cut partial
 
 	public static byte[] init_printer() {
 		byte[] result = new byte[2];
@@ -224,6 +227,23 @@ public class ESCUtil {
 		byte[] result = new byte[lineNum];
 		for (int i = 0; i < lineNum; i++) {
 			result[i] = LF;
+		}
+
+		return result;
+	}
+
+	public static byte[] partialCut() {
+		return new byte[] { ESC, PCUT };
+	}
+
+	public static byte[] fullCut() {
+		return new byte[] { ESC, FCUT };
+	}
+
+	public static byte[] nextLine2(int lineNum) {
+		byte[] result = new byte[lineNum];
+		for (int i = 0; i < lineNum; i++) {
+			result[i] = LF2;
 		}
 
 		return result;

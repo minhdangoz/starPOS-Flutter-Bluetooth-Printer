@@ -312,6 +312,20 @@ class BluetoothDevice {
     return result;
   }
 
+  Future<bool> partialCut() async {
+    final bool result = await FlutterBluePlus._invokeMethod('partialCut');
+
+    print('--> nextline result = $result');
+    return result;
+  }
+
+  Future<bool> fullCut() async {
+    final bool result = await FlutterBluePlus._invokeMethod('fullCut');
+
+    print('--> nextline result = $result');
+    return result;
+  }
+
   Future<bool> setDefaultLineSpace() async {
     final bool result =
         await FlutterBluePlus._invokeMethod('setDefaultLineSpace');

@@ -44,7 +44,7 @@ class _PrintBitmapPageState extends State<PrintBitmapPage> {
     // printer?.printRasterBitmap(bytes, 1);
     printer?.initPrinter();
     printer?.printRasterBitmap(bytes, 0);
-    printer?.printNextLine(1);
+    printer?.printNextLine(2);
   }
 
   @override

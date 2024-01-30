@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        printer?.printNextLine(1);
+                        printer?.printNextLine(2);
                       },
                       child: Text('Print line'),
                     ),

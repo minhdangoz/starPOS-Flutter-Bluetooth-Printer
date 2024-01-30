@@ -840,6 +840,23 @@ public class FlutterStarPOSPrinterPlugin implements
                     break;
                 }
 
+                case "partialCut": {
+                    log(LogLevel.INFO, "--> got partial cut command ");
+
+                    final boolean success = sendDataToPrinter(ESCUtil.partialCut());
+
+                    result.success(success);
+                    break;
+                }
+                case "fullCut": {
+                    log(LogLevel.INFO, "--> got full cut command");
+
+                    final boolean success = sendDataToPrinter(ESCUtil.fullCut());
+
+                    result.success(success);
+                    break;
+                }
+
                 case "setDefaultLineSpace": {
                     log(LogLevel.INFO, "--> got setDefaultLineSpace command");
 
